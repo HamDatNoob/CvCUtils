@@ -1,0 +1,15 @@
+{
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.7",
+  "package": "org.hamdatnoob.cvcutils.mixin",
+  "refmap": "mixins.${id}.refmap.json",
+  "injectors": {
+    "maxShiftBy": 5
+  },
+  "client": [
+    "GuiOverlayDebugMixin_ShowCvCUtilsVersion",
+    "MinecraftMixin_ThirdPersonView",
+    "RenderManagerMixin_DebugBoundingBox"
+  ],
+  "verbose": true
+}
