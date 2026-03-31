@@ -1,7 +1,7 @@
 {
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.7",
-  "package": "org.hamdatnoob.cvcutils.mixin",
+  "package": "me.hamga.cvcutils.mixin",
   "refmap": "mixins.${id}.refmap.json",
   "injectors": {
     "maxShiftBy": 5
@@ -9,7 +9,8 @@
   "client": [
     "GuiOverlayDebugMixin_ShowCvCUtilsVersion",
     "MinecraftMixin_ThirdPersonView",
-    "RenderManagerMixin_DebugBoundingBox"
+    "RenderManagerMixin_DebugBoundingBox",
+    "GuiNewChatMixin_RemovePDCMessages"
   ],
   "verbose": true
 }
