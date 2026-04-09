@@ -150,11 +150,11 @@ public class ExportStatsCommand {
             int _diff = player.getDiff();
             float _kdr = player.getKdr();
             float _hsr = player.getHsr();
-            double hsrFloor = Math.floor(Math.log10(_hsr * 100));
+            double hsrLog10 = Math.floor(Math.log10(_hsr * 100));
 
             String diff = (_diff > 0) ? "+" + _diff : (_diff == 0) ? "+" + 0 : String.valueOf(_diff);
             String kdr = (Float.isInfinite(_kdr)) ? "Inf" : (_kdr == 0) ? "0.00" : (Math.floor(Math.log10(_kdr * 100)) < 3) ? String.format("%.2f", _kdr) : String.format("%.1f", _kdr);
-            String hsr = (_hsr == 0) ? "0.00%" : (hsrFloor == 2) ? String.format("%.0f", _hsr * 100) + "%" : (hsrFloor == 1) ? String.format("%.1f", _hsr * 100) + "%" : String.format("%.2f", _hsr * 100) + "%";
+            String hsr = (_hsr == 0) ? "0.00%" : (hsrLog10 == 2) ? "100.0%" : (hsrLog10 == 1) ? String.format("%.1f", _hsr * 100) + "%" : String.format("%.2f", _hsr * 100) + "%";
 
             str.append(name).append(" ").append(kills).append("-").append(deaths).append(" ").append(diff).append(" ").append(hsr).append(" ").append(kdr);
 
@@ -198,12 +198,12 @@ public class ExportStatsCommand {
             int _diff = player.getDiff();
             float _kdr = player.getKdr();
             float _hsr = player.getHsr();
-            double hsrFloor = Math.floor(Math.log10(_hsr * 100));
+            double hsrLog10 = Math.floor(Math.log10(_hsr * 100));
             int score = player.getScore();
 
             String diff = (_diff > 0) ? "+" + _diff : (_diff == 0) ? "+" + 0 : String.valueOf(_diff);
             String kdr = (Float.isInfinite(_kdr)) ? "Inf" : (_kdr == 0) ? "0.00" : (Math.floor(Math.log10(_kdr * 100)) < 3) ? String.format("%.2f", _kdr) : String.format("%.1f", _kdr);
-            String hsr = (_hsr == 0) ? "0.00%" : (hsrFloor == 2) ? String.format("%.0f", _hsr * 100) + "%" : (hsrFloor == 1) ? String.format("%.1f", _hsr * 100) + "%" : String.format("%.2f", _hsr * 100) + "%";
+            String hsr = (_hsr == 0) ? "0.00%" : (hsrLog10 == 2) ? "100.0%" : (hsrLog10 == 1) ? String.format("%.1f", _hsr * 100) + "%" : String.format("%.2f", _hsr * 100) + "%";
 
             str.append(name).append(" ").append(kills).append("-").append(deaths).append(" ").append(diff).append(" ").append(hsr).append(" ").append(kdr).append(" ").append(score);
 
@@ -230,12 +230,12 @@ public class ExportStatsCommand {
             int _diff = player.getDiff();
             float _kdr = player.getKdr();
             float _hsr = player.getHsr();
-            double hsrFloor = Math.floor(Math.log10(_hsr * 100));
+            double hsrLog10 = Math.floor(Math.log10(_hsr * 100));
             int score = player.getScore();
 
             String diff = (_diff > 0) ? "+" + _diff : (_diff == 0) ? "+" + 0 : String.valueOf(_diff);
             String kdr = (Float.isInfinite(_kdr)) ? "Inf" : (_kdr == 0) ? "0.00" : (Math.floor(Math.log10(_kdr * 100)) < 3) ? String.format("%.2f", _kdr) : String.format("%.1f", _kdr);
-            String hsr = (_hsr == 0) ? "0.00%" : (hsrFloor == 2) ? String.format("%.0f", _hsr * 100) + "%" : (hsrFloor == 1) ? String.format("%.1f", _hsr * 100) + "%" : String.format("%.2f", _hsr * 100) + "%";
+            String hsr = (_hsr == 0) ? "0.00%" : (hsrLog10 == 2) ? "100.0%" : (hsrLog10 == 1) ? String.format("%.1f", _hsr * 100) + "%" : String.format("%.2f", _hsr * 100) + "%";
 
             str.append(name).append(" ").append(kills).append("-").append(deaths).append(" ").append(diff).append(" ").append(hsr).append(" ").append(kdr).append(" ").append(score);
 

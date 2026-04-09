@@ -1,6 +1,7 @@
 package me.hamga.cvcutils.mixin;
 
 import me.hamga.cvcutils.handlers.cvc.playerlists.DefusalPlayerListHandler;
+import me.hamga.cvcutils.handlers.minecraft.WindowBarHandler;
 import me.hamga.cvcutils.util.DebugLogger;
 import me.hamga.cvcutils.util.PDCPerms;
 import net.minecraft.client.gui.GuiNewChat;
@@ -36,6 +37,8 @@ public class GuiNewChatMixin_RemovePDCMessages {
             ci.cancel();
             DebugLogger.log(text);
             DebugLogger.log("Player is on Podcrash: " + PDCPerms.getIsOnPDC());
+
+            WindowBarHandler.setTitleBar();
         }
 
         if(PDCPerms.isBlockingPDCMessages()){

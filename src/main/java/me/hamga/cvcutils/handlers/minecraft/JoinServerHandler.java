@@ -13,7 +13,7 @@ public class JoinServerHandler {
     public void onJoinServer(EntityJoinWorldEvent event) {
         if(event.world.isRemote && event.entity != Minecraft.getMinecraft().thePlayer) return; // entity is not the current user or has run before
 
-        if(!hasRun){
+        if(!hasRun && !Minecraft.getMinecraft().isSingleplayer()){
             PDCPerms.setBlockingPDCMessages(true);
             DebugLogger.chat("Starting blocking of PDC messages");
 
