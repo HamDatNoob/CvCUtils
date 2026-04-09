@@ -71,11 +71,11 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
 
 
             Gui.drawRect(xMidpoint - tabWidth, yMidpoint - tabHeight, xMidpoint + tabWidth, yMidpoint + tabHeight, TextColor.tabColor);
-            textRenderer.render("§lName", x + 33, y);
-            textRenderer.render("§lK§r-§lD", x + 173, y);
-            textRenderer.render("§lDiff", x + 204, y);
-            textRenderer.render("§lKDR", x + 234, y);
-            textRenderer.render("§lHS%", x + 266, y, invalidColor);
+            textRenderer.text("§lName").translate(x + 33, y).render();
+            textRenderer.text("§lK§r-§lD").translate(x + 173, y).render();
+            textRenderer.text("§lDiff").translate(x + 204, y).render();
+            textRenderer.text("§lKDR").translate(x + 234, y).render();
+            textRenderer.text("§lHS%").translate(x + 266, y).color(invalidColor).render();
 
 //            String cops = CvCGame.getCopsScore() + " - " + CvCIcons.COPS.getForwards() + " Cops";
 //            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(cops, xMidpoint - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(cops) / 2, y + 14, TextColor.darkAqua);
@@ -92,15 +92,15 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
             String copsLossBonus = getLossBonusLine(CvCGame.getCopsLossBonus(), true);
             String crimsLossBonus = getLossBonusLine(CvCGame.getCrimsLossBonus(), false);
 
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(copsLossBonus, xMidpoint + 125 - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(copsLossBonus) / 2, y + 14 * index + 1, TextColor.white);
+            textRenderer.text(copsLossBonus).translate(xMidpoint + 125, y + 14 * index + 1).center().render();
 
             int centered = y + 14 * index + 7;
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(rounds, xMidpoint - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(rounds) / 2, centered, TextColor.white);
-            textRenderer.text("Loss Bonus").position(xMidpoint + 125, centered).center().scale(0.75f).render();
+            textRenderer.text(rounds).translate(xMidpoint, centered).center().render();
+            textRenderer.text("Loss Bonus").translate(xMidpoint + 125, centered).scale(0.75f).center().render();
 
             index++;
 
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(crimsLossBonus, xMidpoint + 125 - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(crimsLossBonus) / 2, y + 14 * index - 1, TextColor.white);
+            textRenderer.text(crimsLossBonus).translate(xMidpoint + 125, y + 14 * index - 1).center().render();
 
             index++;
 
@@ -116,8 +116,7 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
             }
 
             if(CvCPlayer.isInvalid()){
-                String text = "Values may be wrong due to /reset or rejoining.";
-                Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(text, xMidpoint - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(text) / 2, y + 14 * index, TextColor.red);
+                textRenderer.text("Values may be wrong due to /reset or rejoining.").translate(xMidpoint, y + 14 * index).center().color(TextColor.red).render();
             }
 
             event.setCanceled(true); // kills normal tab
@@ -385,12 +384,12 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
         int invalidColor = (CvCPlayer.isInvalid()) ? TextColor.red : TextColor.white; // if invalid show hsr as red instead of white
 
         Gui.drawRect(x, yMidpoint - tabHeight + (12 * i) + (2 * i) + padding, xMidpoint + tabWidth - padding, yMidpoint - tabHeight + (12 * i + 4) + (2 * i) + 12, TextColor.tabColor);
-        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(ADL + name + hasBomb, x + 2, y, TextColor.white);
-        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(icon, x + 156, y, TextColor.white);
-        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(killsAndDeaths, kdx + 174, y, TextColor.white);
-        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(diff, x + 206, y, TextColor.white);
-        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(kdr, x + 234, y, TextColor.white);
-        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(hsr, x + 264, y, invalidColor);
+        textRenderer.text(ADL + name + hasBomb).translate(x + 2, y).render();
+        textRenderer.text(icon).translate(x + 156, y).render();
+        textRenderer.text(killsAndDeaths).translate(kdx + 174, y).render();
+        textRenderer.text(diff).translate(x + 206, y).render();
+        textRenderer.text(kdr).translate(x + 234, y).render();
+        textRenderer.text(hsr).translate(x + 264, y).color(invalidColor).render();
     }
 
     /**
