@@ -27,6 +27,6 @@ public class PDCPerms {
 
     // check if another player is on podcrash
     public static void onlineCheck(String username){
-        Minecraft.getMinecraft().thePlayer.sendChatMessage("/pdc io " +  username);
+        Minecraft.getMinecraft().thePlayer.sendChatMessage("/pdc io " + username);
     }
 }

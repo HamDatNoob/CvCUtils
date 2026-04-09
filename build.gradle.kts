@@ -26,9 +26,9 @@ val mod_archives_name: String by project
 
 // Replaces the variables in `ExampleMod.java` to the ones specified in `gradle.properties`.
 blossom {
-    replaceToken("@VER@", mod_version)
-    replaceToken("@NAME@", mod_name)
-    replaceToken("@ID@", mod_id)
+    replaceToken("@MODVER@", mod_version)
+    replaceToken("@MODNAME@", mod_name)
+    replaceToken("@MODID@", mod_id)
 }
 
 // Sets the mod version to the one specified in `gradle.properties`. Make sure to change this following semver!

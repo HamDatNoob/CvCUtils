@@ -2,7 +2,6 @@ package me.hamga.cvcutils.util;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.hamga.cvcutils.enums.cvc.CvCIcons;
 
 import java.util.Arrays;
 
@@ -23,7 +22,7 @@ public class CvCGame {
         copsLossBonus = 0;
         crimsLossBonus = 0;
 
-        Arrays.fill(rounds, CvCIcons.NONE.getForwards());
+        Arrays.fill(rounds, "None");
     }
 
     public static int getScoreTotal(){
@@ -38,7 +37,18 @@ public class CvCGame {
         copsLossBonus = 0;
         crimsLossBonus = 0;
 
-        Arrays.fill(rounds, CvCIcons.NONE.getForwards());
+        Arrays.fill(rounds, "None");
     }
 
+    public static String string(){
+        return "CvCGame{" +
+                "copsScore=" + copsScore +
+                ", crimsScore=" + crimsScore +
+                ", map='" + map + '\'' +
+                ", gamemode='" + gamemode + '\'' +
+                ", rounds=" + Arrays.toString(rounds) +
+                ", copsLossBonus=" + copsLossBonus +
+                ", crimsLossBonus=" + crimsLossBonus +
+                '}';
+    }
 }

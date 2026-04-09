@@ -8,6 +8,7 @@ import me.hamga.cvcutils.CvCUtils;
 import me.hamga.cvcutils.handlers.cvc.playerlists.DeathmatchPlayerListHandler;
 import me.hamga.cvcutils.handlers.cvc.playerlists.DefusalPlayerListHandler;
 import me.hamga.cvcutils.handlers.cvc.playerlists.GungamePlayerListHandler;
+import me.hamga.cvcutils.util.PDCPerms;
 
 @Command(value = "reset", description = "Resets the player list")
 public class ResetCommand {

@@ -9,6 +9,7 @@ import lombok.Getter;
 import me.hamga.cvcutils.CvCUtils;
 import me.hamga.cvcutils.enums.cvc.CvCIcons;
 import me.hamga.cvcutils.enums.cvc.Gamemodes;
+import me.hamga.cvcutils.hud.TextRenderer;
 import me.hamga.cvcutils.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -23,14 +24,19 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlist isn't quite right but idk why, also on swapping sides the tab sometimes doesn't change properly
     private @Getter static final ArrayList<CvCPlayer> cvcPlayers = new ArrayList<>();
+    private static boolean challengeMode = false;
+    private static final TextRenderer textRenderer = new TextRenderer();
+
 
     @SubscribeEvent
     public void onOverlayRender(RenderGameOverlayEvent.Pre event) {
@@ -63,16 +69,17 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
 
             int invalidColor = (CvCPlayer.isInvalid()) ? TextColor.red : TextColor.white; // if invalid show hsr as red instead of white
 
-            Gui.drawRect(xMidpoint - tabWidth, yMidpoint - tabHeight, xMidpoint + tabWidth, yMidpoint + tabHeight, TextColor.tabColor);
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow("§lName", x + 33, y, TextColor.white);
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow("§lK§r-§lD", x + 173, y, TextColor.white);
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow("§lDiff", x + 204, y, TextColor.white);
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow("§lKDR", x + 234, y, TextColor.white);
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow("§lHS%", x + 266, y, invalidColor);
 
-            String cops = CvCGame.getCopsScore() + " - " + CvCIcons.COPS.getForwards() + " Cops";
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(cops, xMidpoint - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(cops) / 2, y + 14, TextColor.darkAqua);
-            index++;
+            Gui.drawRect(xMidpoint - tabWidth, yMidpoint - tabHeight, xMidpoint + tabWidth, yMidpoint + tabHeight, TextColor.tabColor);
+            textRenderer.render("§lName", x + 33, y);
+            textRenderer.render("§lK§r-§lD", x + 173, y);
+            textRenderer.render("§lDiff", x + 204, y);
+            textRenderer.render("§lKDR", x + 234, y);
+            textRenderer.render("§lHS%", x + 266, y, invalidColor);
+
+//            String cops = CvCGame.getCopsScore() + " - " + CvCIcons.COPS.getForwards() + " Cops";
+//            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(cops, xMidpoint - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(cops) / 2, y + 14, TextColor.darkAqua);
+//            index++;
 
             teamCops.sort(new SortByKills());
 
@@ -81,9 +88,25 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
                 index++;
             }
 
-            String crims = CvCGame.getCrimsScore() + " - " + CvCIcons.CRIMS.getForwards() + " Crims";
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(crims, xMidpoint - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(crims) / 2, y + 14 * index, TextColor.darkRed);
+            String rounds = getRoundsLine();
+            String copsLossBonus = getLossBonusLine(CvCGame.getCopsLossBonus(), true);
+            String crimsLossBonus = getLossBonusLine(CvCGame.getCrimsLossBonus(), false);
+
+            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(copsLossBonus, xMidpoint + 125 - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(copsLossBonus) / 2, y + 14 * index + 1, TextColor.white);
+
+            int centered = y + 14 * index + 7;
+            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(rounds, xMidpoint - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(rounds) / 2, centered, TextColor.white);
+            textRenderer.text("Loss Bonus").position(xMidpoint + 125, centered).center().scale(0.75f).render();
+
             index++;
+
+            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(crimsLossBonus, xMidpoint + 125 - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(crimsLossBonus) / 2, y + 14 * index - 1, TextColor.white);
+
+            index++;
+
+//            String crims = CvCGame.getCrimsScore() + " - " + CvCIcons.CRIMS.getForwards() + " Crims";
+//            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(crims, xMidpoint - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(crims) / 2, y + 14 * index, TextColor.darkRed);
+//            index++;
 
             teamCrims.sort(new SortByKills());
 
@@ -106,17 +129,17 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
         String message = event.message.getUnformattedText();
 
         if(message == null) return;
-        if(cvcPlayers.isEmpty()) return;
-
-//        if(message.startsWith("Found an in-progress") || message.startsWith("Sending you to")){ // joining game; reset stats
-//            reset();
-//        }
+        if(message.startsWith("Found an in-progress") || message.startsWith("Sending you to") || message.equals("The game starts in 1 second!")){ // joining game; reset stats
+            reset();
+        }
 
         LocrawInfo locraw = LocrawUtil.INSTANCE.getLocrawInfo();
         if (HypixelUtils.INSTANCE.isHypixel() && LocrawUtil.INSTANCE.isInGame() && locraw != null && locraw.getGameType() == LocrawInfo.GameType.COPS_AND_CRIMS && Gamemodes.isDefusal()) {
-            if (message.contains("§")) return; // ignore actionbar messages
+            if (message.contains("§")) return; // ignore actionbar messages and player chat messages
 
-            if (CvCIcons.containsDeathType(message)) {
+            if (CvCIcons.containsDeathType(message)) { // death message
+                if(cvcPlayers.isEmpty()) return;
+
                 String[] messageParts = message.split(" ");
                 if (messageParts.length == 3) { // normal kills
                     String kill = messageParts[0];
@@ -139,11 +162,23 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
 
                     cvcPlayers.get(deathIndex).addDeath(true);
                 }
-            } else if (message.contains(CvCIcons.COPS.getForwards() + "   Cops and Crims   " + CvCIcons.CRIMS.getForwards())) {
+            }else if(message.contains("won the round!")){ // round won message
+                if(message.contains("Criminals")){ // crims won round
+                    int lossBonus = CvCGame.getCopsLossBonus();
+                    if(lossBonus != 4){
+                        CvCGame.setCopsLossBonus(lossBonus + 1);
+                    }
+                }else{ // cops won round
+                    int lossBonus = CvCGame.getCrimsLossBonus();
+                    if(lossBonus != 4){
+                        CvCGame.setCrimsLossBonus(lossBonus + 1);
+                    }
+                }
+            }else if (message.contains(CvCIcons.COPS.getForwards() + "   Cops and Crims   " + CvCIcons.CRIMS.getForwards())) { // end game message
                 int copsRoundsScoreboard = Integer.parseInt(message.substring(0, message.indexOf(CvCIcons.COPS.getForwards())).trim());
                 int crimsRoundsScoreboard = Integer.parseInt(message.substring(message.indexOf(CvCIcons.CRIMS.getForwards()) + 1).trim());
-                CvCGame.setCopsScore(copsRoundsScoreboard);
-                CvCGame.setCrimsScore(crimsRoundsScoreboard);
+
+                handleScore(null, true,  copsRoundsScoreboard, crimsRoundsScoreboard);
             }
         }
     }
@@ -157,11 +192,15 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
 
             if (sidebar.size() < 10) { // make sure the sidebar has fully loaded
                 if (sidebar.size() == 9) {
+                    challengeMode = sidebar.get(8).contains("[P]");
+
                     roundTimer = sidebar.get(6);
                 } else {
                     return;
                 }
-            } else if (sidebar.size() > 10) {
+            } else if (sidebar.size() > 12) {
+                challengeMode = sidebar.get(12).contains("[P]");
+
                 roundTimer = sidebar.get(10);
             } else {
                 return;
@@ -174,11 +213,13 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
             ArrayList<NetworkPlayerInfo> netPlayers = new ArrayList<>(netHandler.getPlayerInfoMap());
 
             if (netPlayers.get(0).getPlayerTeam() == null || netPlayers.get(0).getGameProfile() == null) { // game hasn't started yet
-                reset();
+//                DebugLogger.log("Resetting stats");
+//
+//                reset();
                 return;
             }
 
-            boolean hasDeadPlayers = cvcPlayers.isEmpty(); // only true at the beginning of the game, otherwise false
+            boolean hasDeadPlayers = cvcPlayers.isEmpty(); // cvcPlayers is only empty at the beginning of the game, otherwise false
 
             for (CvCPlayer player : cvcPlayers) {
                 if (!player.isAlive() && player.isIngame() && !hasDeadPlayers) {
@@ -188,7 +229,7 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
                 player.setHasBomb(playerHasBomb(player.getUsername()));
             }
 
-            if (roundTimer.contains("Objective: §a02:") && hasDeadPlayers) {
+            if (roundTimer.contains("Objective: §a02:") && hasDeadPlayers) { // NEW ROUND
                 for (CvCPlayer player : cvcPlayers) {
                     if (!playerIsIngame(player.getUsername())) { // if player is not in game
                         player.setAlive(false);
@@ -200,13 +241,26 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
                 }
 
                 DebugLogger.log("cvcPlayers size: " + cvcPlayers.size());
+                DebugLogger.log(CvCGame.string());
+
+                DebugLogger.log("chal mode: " + challengeMode);
 
                 String score = Minecraft.getMinecraft().theWorld.getScoreboard().getObjectiveInDisplaySlot(1).getDisplayName(); // gets score of game from sidebar title
 
                 if(score.isEmpty()) return;
 
-                CvCGame.setCopsScore(Integer.parseInt(score.substring(2, score.indexOf(CvCIcons.COPS.getForwards())).trim()));  // sets cops rounds to the scoreboard at the end of round
-                CvCGame.setCrimsScore(Integer.parseInt(score.substring(score.indexOf(CvCIcons.CRIMS.getForwards()) + 1).trim())); // does the same for crims
+                handleScore(score, false, 0, 0);
+
+                if(challengeMode){
+                    if(CvCGame.getScoreTotal() == 11 || CvCGame.getScoreTotal() == 22){
+                        swapSides();
+                    }
+                }else{
+                    if(CvCGame.getScoreTotal() == 4 || CvCGame.getScoreTotal() == 8){
+                        swapSides();
+                    }
+                }
+
 
                 for(CvCPlayer p : cvcPlayers){
                     DebugLogger.log(p.toString());
@@ -216,16 +270,18 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
                 netPlayers = new ArrayList<>(netHandler.getPlayerInfoMap());
 
                 // hacky but i got no better ideas
-                PDCPerms.setBlockingPDCMessages(true);
-                DebugLogger.chat("Starting blocking of PDC messages");
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ignored) {}
+                if(PDCPerms.getIsOnPDC() != null && PDCPerms.getIsOnPDC()){
+                    PDCPerms.setBlockingPDCMessages(true);
+                    DebugLogger.chat("Starting blocking of PDC messages");
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException ignored) {}
 
-                    DebugLogger.chat("Stopping blocking of PDC messages");
-                    PDCPerms.setBlockingPDCMessages(false);
-                }).start();
+                        DebugLogger.chat("Stopping blocking of PDC messages");
+                        PDCPerms.setBlockingPDCMessages(false);
+                    }).start();
+                }
 
                 for (NetworkPlayerInfo playerInfo : netPlayers) {
                     if (indexOfUsername(playerInfo.getGameProfile().getName()) == -1) { // player not in cvcPlayers
@@ -371,7 +427,9 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
         }
 
         // check pdc for perm level
-        PDCPerms.onlineCheck(username);
+        if(PDCPerms.getIsOnPDC() != null && PDCPerms.getIsOnPDC()) {
+            PDCPerms.onlineCheck(username);
+        }
 
         CvCPlayer player = new CvCPlayer(username, displayName, team, kills, deaths, kills - deaths, kdr, 0f, 0, 0, false, true, false);
         cvcPlayers.add(player);
@@ -437,48 +495,101 @@ public class DefusalPlayerListHandler { // TODO: sometimes the initial playerlis
         //System.out.println(player);
     }
 
-//    /**
-//     * Resets the team and displayName variables in the CvCPlayer object
-//     *
-//     * @param playerInfo The player to reset
-//     */
-//    public void checkSides(NetworkPlayerInfo playerInfo) {
-//        String username = playerInfo.getGameProfile().getName();
-//        String tabName = Minecraft.getMinecraft().ingameGUI.getTabList().getPlayerName(playerInfo);
-//        String team = tabName.split(" ")[0];
-//        String displayName = team + " " + username;
-//
-//        int i = indexOfUsername(username);
-//
-//        if (i == -1) {
-//            return;
-//        }
-//
-//        cvcPlayers.get(i).setDisplayName(displayName);
-//        cvcPlayers.get(i).setTeam(team);
-//    }
+    public void handleScore(String score, boolean gameEnded, int copsEnd, int crimsEnd){
+        int oldCopsScore = CvCGame.getCopsScore();
+        int oldCrimsScore = CvCGame.getCrimsScore();
+        int newCopsScore = (gameEnded) ? copsEnd : Integer.parseInt(score.substring(2, score.indexOf(CvCIcons.COPS.getForwards())).trim());
+        int newCrimsScore = (gameEnded) ? crimsEnd : Integer.parseInt(score.substring(score.indexOf(CvCIcons.CRIMS.getForwards()) + 1).trim());
 
-//    public void swapSides(){
-//        // checks if it is time to swap sides
-//        if((!Gamemodes.isChallengeMode() && CvCPlayer.getScoreTotal() == 4) || (!Gamemodes.isChallengeMode() && CvCPlayer.getScoreTotal() == 8) || CvCPlayer.getScoreTotal() == 11 || CvCPlayer.getScoreTotal() == 22) {
-//            NetHandlerPlayClient netHandler = Minecraft.getMinecraft().thePlayer.sendQueue;
-//            ArrayList<NetworkPlayerInfo> netPlayers = new ArrayList<>(netHandler.getPlayerInfoMap());
-//
-//            for(NetworkPlayerInfo playerInfo : netPlayers){
-//                String username = playerInfo.getGameProfile().getName();
-//                String tabName = Minecraft.getMinecraft().ingameGUI.getTabList().getPlayerName(playerInfo);
-//                String[] tabNameParts = tabName.split(" ");
-//                String team = tabNameParts[0];
-//                String displayName = team + " " + username;
-//
-//                int i = indexOfUsername(username);
-//                if(i == -1) continue;
-//
-//                cvcPlayers.get(i).setTeam(team);
-//                cvcPlayers.get(i).setDisplayName(displayName);
-//            }
-//        }
-//    }
+        boolean copsWonRound = oldCopsScore != newCopsScore;
+        int lastRoundNumber = newCopsScore + newCrimsScore;
+        int currentRoundNumber = lastRoundNumber + 1;
+
+        if(lastRoundNumber != 0){
+            if(copsWonRound){
+                CvCGame.getRounds()[lastRoundNumber - 1] = "Cops";
+            }else{
+                CvCGame.getRounds()[lastRoundNumber - 1] = "Crims";
+            }
+        }
+
+        CvCGame.getRounds()[currentRoundNumber - 1] = "Current";
+
+        // this happens twice?
+        CvCGame.setCopsScore(newCopsScore);  // sets cops rounds to the scoreboard at the end of round
+        CvCGame.setCrimsScore(newCrimsScore); // does the same for crims
+
+        DebugLogger.log(Arrays.toString(CvCGame.getRounds()));
+    }
+
+    private static @NotNull String getRoundsLine(){
+        StringBuilder roundsLine = new StringBuilder();
+        String[] rounds = CvCGame.getRounds();
+        for(int i = 0; i < rounds.length; i++) {
+            if(challengeMode){
+                if(i == 11 || i == 22){
+                    roundsLine.append(" §8| ");
+                }
+            }else{
+                if(i == 10) return roundsLine.toString();
+
+                if(i == 4 || i == 9){
+                    roundsLine.append(" §8| ");
+                }
+            }
+
+            switch(rounds[i]){
+                case "None":
+                    roundsLine.append("§8-");
+                    break;
+
+                case "Cops":
+                    roundsLine.append("§3-");
+                    break;
+
+                case "Crims":
+                    roundsLine.append("§4-");
+                    break;
+
+                case "Current":
+                    roundsLine.append("§7-");
+                    break;
+            }
+        }
+
+        return roundsLine.toString();
+    }
+
+    private static @NotNull String getLossBonusLine(int lossBonus, boolean copsTeam){
+        StringBuilder lossBonusLine = new StringBuilder();
+
+        if(copsTeam && lossBonus != 0){
+            lossBonusLine.append("§3");
+        }else if(lossBonus != 0){
+            lossBonusLine.append("§4");
+        }
+
+        for(int i = 0; i < lossBonus; i++){
+            lossBonusLine.append("-");
+        }
+
+        if(lossBonus == 4){
+            return lossBonusLine.toString();
+        }
+
+        lossBonusLine.append("§8");
+
+        for(int i = lossBonus; i < 4; i++){
+            lossBonusLine.append("-");
+        }
+
+        return lossBonusLine.toString();
+    }
+
+    private static void swapSides(){
+        CvCGame.setCopsLossBonus(0);
+        CvCGame.setCrimsLossBonus(0);
+    }
 
     /**
      * Finds the index of a certain username in the cvcPlayers ArrayList.

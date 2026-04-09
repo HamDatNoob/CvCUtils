@@ -54,7 +54,6 @@ public class CvCUtils {
         if (!OSUtil.getModsDirectory().exists() || !OSUtil.getStatsDirectory().exists()) {
             OSUtil.createModDirectory();
         }
-        WindowBarHandler.setTitleBar();
     }
 
     @Mod.EventHandler
